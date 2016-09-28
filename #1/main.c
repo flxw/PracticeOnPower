@@ -5,15 +5,16 @@
 
 int is_apt_for_exercise(bmp_t *bmp)
 {
+
 	int is_argb =  
 		(bmp->channels == 4) &&
-		(bmp->compression == BMP_BI_BITFIELDS) &&
-		(bmp->redMask     == BMP_ARGB8888_R_MASK) &&
-		(bmp->greenMask   == BMP_ARGB8888_G_MASK) &&
-		(bmp->blueMask    == BMP_ARGB8888_B_MASK) &&
-		(bmp->alphaMask   == BMP_ARGB8888_A_MASK);
+		(bswap_32(bmp->compression) == BMP_BI_BITFIELDS) &&
+		(bswap_32(bmp->redMask)     == BMP_ARGB8888_R_MASK) &&
+		(bswap_32(bmp->greenMask)   == BMP_ARGB8888_G_MASK) &&
+		(bswap_32(bmp->blueMask)    == BMP_ARGB8888_B_MASK) &&
+		(bswap_32(bmp->alphaMask)   == BMP_ARGB8888_A_MASK);
 	int is_simdable =
-		((bmp->width * bmp->height) % 4 == 0);
+		((bswap_32(bmp->width) * bswap_32(bmp->height)) % 4 == 0);
 	return is_argb && is_simdable;
 }
 
@@ -29,9 +30,9 @@ void taskA(uint8_t *in, uint8_t *out, int num_pixels)
 
 	for (p = 0; p < num_pixels; p++) {
 		value = ((pixel_t *)in)[p];
-		value.r = 255 - value.r;
-		value.g = 255 - value.g;
-		value.b = 255 - value.b; 
+		value.r = bswap_8(255 - bswap_8(value.r));
+		value.g = bswap_8(255 - bswap_8(value.g));
+		value.b = bswap_8(255 - bswap_8(value.b)); 
 		((pixel_t *)out)[p] = value;
 	}
 }
@@ -68,17 +69,17 @@ int main(int argc, char *argv[])
 	}
 
 	bmp_read(&bmp_in, filename);
+	bmp_copyHeader(&bmp_out, &bmp_in);
+	bmp_assign(&bmp_in);
 
 	if (!is_apt_for_exercise(&bmp_in)) {
 		fprintf(stderr, "For the sake simplicity please provide a ARGB8888 image with a pixel count divisible by four.\n");
 		exit(4);
 	}
 
-	bmp_copyHeader(&bmp_out, &bmp_in);
-
 	switch (task) {
 		case 'a':
-			taskA(bmp_in.data, bmp_out.data, bmp_in.width * bmp_in.height);
+			taskA(bmp_in.data, bmp_out.data, bswap_32(bmp_in.width) * bswap_32(bmp_in.height));
 			break;
 		case 'b':
 			taskB(bmp_in.data, bmp_out.data, bmp_in.width * bmp_in.height);
