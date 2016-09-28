@@ -16,7 +16,7 @@
 
 /*----------------------------------------------------------------------------*/
 
-
+#if __BIG_ENDIAN__ == 1
 #define bswap_8(value) \
 ((((value) & 0xf) << 4) | ((value) >> 4))
 
@@ -31,7 +31,14 @@
 (((uint64_t)bswap_32((uint32_t)((value) & 0xffffffff)) \
 << 32) | \
 (uint64_t)bswap_32((uint32_t)((value) >> 32)))
+#elif __BIG_ENDIAN__ != 1
 
+#define bswap_8(value) value
+#define bswap_16(value) value
+#define bswap_32(value) value
+#define bswap_64(value) value
+
+#endif
 
 /*----------------------------------------------------------------------------*/
 
