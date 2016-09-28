@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
 
 	bmp_read(&bmp_in, filename);
 	bmp_copyHeader(&bmp_out, &bmp_in);
-	bmp_assign(&bmp_in);
 
 	if (!is_apt_for_exercise(&bmp_in)) {
 		fprintf(stderr, "For the sake simplicity please provide a ARGB8888 image with a pixel count divisible by four.\n");

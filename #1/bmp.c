@@ -28,24 +28,18 @@ void bmp_read(bmp_t *bmp, const char *filename)
 	bmp->yDirection = bmp->isTopDown ? 1 : -1;
 	bmp->yOffset = bmp->isTopDown ? 0 : bswap_32(bmp->height) - 1;
 
+	/* We are storing 4 channel bmp in the end. Override old value */
+	bmp->channels = bswap_16(bmp->bitCount) / 8;
+	bmp->bitCount = bswap_16(32);
 
 	/* Allocate memory for our pixel data and read file */
-	bmp->sizeImage = bswap_32(bmp->width) * bswap_32(bmp->height) * 4;
+	bmp->sizeImage = bswap_32(bmp->width) * bswap_32(bmp->height) * bmp->channels;
 
 	bmp->data = malloc(bmp->sizeImage);
 
 	fread(bmp->data, bmp->sizeImage, 1, f);
 
 	fclose(f);
-}
-
-void bmp_assign(bmp_t *bmp) {
-	/* We are storing 4 channel bmp in the end. Override old value */
-	bmp->channels = bswap_16(bmp->bitCount) / 8;
-	bmp->bitCount = bswap_16(32);
-
-	//int32_t height_unchanged = bmp->height;
-	//bmp->height = abs(bmp->height);
 }
 
 void bmp_copyHeader(bmp_t *bmp, bmp_t *other)
