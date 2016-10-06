@@ -1,0 +1,10 @@
+Wir reichen die Lösung im Format "KOMMANDOAUFRUF => LÖSUNG DER AUFGABE" ein.
+
+A) less /etc/passwd => /bin/bash
+B) lsattr -El sys0 -a realmem => 2042626048 KiB
+C) lspv hdisk0 => 51136MB
+D) uptime -h => 26.09 15:32
+E) lsparstat -i => 96 physical processors,  24 virtual processors
+F) lsparstat -i => dedicated-SMT-4
+G) lsattr -E -l sys0 => IBM,0221B69B7
+H) /usr/sbin/rsct/install/bin/ctversion -b => 3.2.1.10
