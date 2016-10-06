@@ -58,7 +58,7 @@ void taskB(uint8_t *in, uint8_t *out, int num_pixels)
 
 	for (p = 0; p < num_pixels; p+=1) {
 		value = ((pixel_t *)in)[p];
-		
+
 		vector unsigned int vpixel = {bswap_8(value.r), bswap_8(value.g), bswap_8(value.b), 0};
 		vector float vfconverter = {0.29891f, 0.58661f, 0.11448f, 0};
 		vector float vfpixel     = vec_ctf(vpixel, 0);
@@ -76,33 +76,33 @@ void taskC(uint8_t *in, uint8_t *out, int num_pixels)
 	pixel_t value;
 	int p;
 
-
-	/* R1 + G1 + B1
-	 * R2 + G2 + B2
-	 * R3 + G3 + B3
-	 * R4 + G4 + B4 */
-
 	for (p = 0; p < num_pixels; p+=1) {
 		value = ((pixel_t *)in)[p];
-		
-		vector unsigned int vpixel = {bswap_8(value.r), bswap_8(value.g), bswap_8(value.b), 0};
+
+		vector unsigned int vrpx = {bswap_8(value.r), bswap_8(value.g), bswap_8(value.b), 0};
 		vector float vfconverter = {0.29891f, 0.58661f, 0.11448f, 0};
 		vector float vfpixel     = vec_ctf(vpixel, 0);
 
 		vector unsigned int vresult = vec_ctu(vec_mul(vfpixel, vfconverter), 0);
 		unsigned int avgpixvalue = (vresult[0]) + (vresult[1]) + (vresult[2]);
-		
-		vector unsigned int vred    = {vpixel[0],0,0,0};
-		vector unsigned int vavgpix = {avgpixvalue, avgpixvalue, avgpixvalue, 255};
+		vector unsigned int vavgpixel = {avgpixvalue, avgpixvalue, avgpixvalue, 0};
 
-		vector bool redpix  = vec_cmpgt(vred, vavgpix);	
-		vector unsigned int finalpixel = vec_sel(vavgpix, vpixel, redpix);
+		vector unsigned int vred = { 255, vpixel[0], vpixel[0], 0 };
+		vector bool vdominantred = vec_cmpgt(vred, vpixel);
+
+		vector bool vdominantred = if (vdominantred[0] && vdominantred[1] && vdominantred[2])?{1,1,1,1}:{0,0,0,0};
+		vector unsigned int finalpixel = vec_sel(vavgpix, vpixel, vdominantred);
 
 		value.r = bswap_8(finalpixel[0]);
 		value.g = bswap_8(finalpixel[1]);
 		value.b = bswap_8(finalpixel[2]);
 
 		((pixel_t *)out)[p] = value;
+
+		/* Alternativ (und auch mehr SIMD)
+		 * vier Pixel auf einmal nehmen, einen Vektor pro Farbkanal und in Graustufe umwandeln.
+		 * Mit dem Rot-Vektor auf Dominanz prüfen, daraus einen Bool-Vektor zur Wahl des Source-Vektors nehmen
+		 */
 	}
 }
 
