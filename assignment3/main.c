@@ -59,13 +59,17 @@ void taskB(uint8_t *in, uint8_t *out, int num_pixels)
 	for (p = 0; p < num_pixels; p+=1) {
 		value = ((pixel_t *)in)[p];
 
-		vector unsigned int vpixel = {bswap_8(value.r), bswap_8(value.g), bswap_8(value.b), 0};
+		// suddenly endianness is not important anymore??!
+		vector unsigned int vpixel = {(value.r), (value.g), (value.b), 0};
 		vector float vfconverter = {0.29891f, 0.58661f, 0.11448f, 0};
 		vector float vfpixel     = vec_ctf(vpixel, 0);
 
 		vector unsigned int vresult = vec_ctu(vec_mul(vfpixel, vfconverter), 0);
 
-		value.r = value.g = value.b = bswap_8(vresult[0]) + bswap_8(vresult[1]) + bswap_8(vresult[2]);
+		value.r = value.g = value.b = (vresult[0]) + (vresult[1]) + (vresult[2]);
+
+/*		int avg = (value.r + value.g + value.b)/3;
+		value.r = value.g = value.b = avg;*/
 
 		((pixel_t *)out)[p] = value;
 	}
@@ -79,7 +83,7 @@ void taskC(uint8_t *in, uint8_t *out, int num_pixels)
 	for (p = 0; p < num_pixels; p+=1) {
 		value = ((pixel_t *)in)[p];
 
-		vector unsigned int vrpx = {bswap_8(value.r), bswap_8(value.g), bswap_8(value.b), 0};
+		vector unsigned int vpixel = {(value.r), (value.g), (value.b), 0};
 		vector float vfconverter = {0.29891f, 0.58661f, 0.11448f, 0};
 		vector float vfpixel     = vec_ctf(vpixel, 0);
 
@@ -89,13 +93,11 @@ void taskC(uint8_t *in, uint8_t *out, int num_pixels)
 
 		vector unsigned int vred = { 255, vpixel[0], vpixel[0], 0 };
 		vector bool vdominantred = vec_cmpgt(vred, vpixel);
+		vector unsigned int finalpixel = (vdominantred[0] && vdominantred[1] && vdominantred[2]) ? vpixel : vavgpixel;
 
-		vector bool vdominantred = if (vdominantred[0] && vdominantred[1] && vdominantred[2])?{1,1,1,1}:{0,0,0,0};
-		vector unsigned int finalpixel = vec_sel(vavgpix, vpixel, vdominantred);
-
-		value.r = bswap_8(finalpixel[0]);
-		value.g = bswap_8(finalpixel[1]);
-		value.b = bswap_8(finalpixel[2]);
+		value.r = (finalpixel[0]);
+		value.g = (finalpixel[1]);
+		value.b = (finalpixel[2]);
 
 		((pixel_t *)out)[p] = value;
 
