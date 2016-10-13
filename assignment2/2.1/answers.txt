@@ -1,0 +1,33 @@
+1) 96 CPU cores installed, 90 CPU cores assigned => no
+
+2) yes, Multiple shared processor pools (MSPP) are supported
+
+3 + 4) The reserved memory is assigned to the hypervisor and is required for hardware page tables (HPT), to support I/O devices and the virtualization in general (for example to store registers, ...).
+
+5) See image sketch.jpg for our drawing.
+
+6) All slots are PCI-E capable, Rev 3 16x lane slot with 16x lanes
+U78CA.001.CSS058R-P1-C1-C1: PCIe2 4-port(10Gb FCoE & 1GbE) Copper&RJ45		Ethernet Apapter
+U78CA.001.CSS058R-P1-C2-C1: 4-Port USB 3.0 Adapter							USB Apapter
+U78CA.001.CSS058R-P1-C7-C1: PCIe2 4-port(10Gb FCoE & 1GbE) Copper&RJ45		Ethernet Apapter
+U78CA.001.CSS058R-P1-C8-C1: Empty slot
+U78CA.001.CSS058R-P1-C3-C1: Empty slot
+U78CA.001.CSS058R-P1-C4-C1: Quad 8 Gigabit Fibre Channel LP Adapter			Fibre Channel Apapter
+U78CA.001.CSS058R-P1-C5-C1: Quad 8 Gigabit Fibre Channel LP Adapter			Fibre Channel Apapter
+U78CA.001.CSS058R-P1-C6-C1: Empty slot
+U78CA.001.CSS059G-P1-C1-C1: PCIe2 4-port(10Gb FCoE & 1GbE) Copper&RJ45		Ethernet Apapter
+U78CA.001.CSS059G-P1-C2-C1: Empty slot
+U78CA.001.CSS059G-P1-C7-C1: PCIe2 4-port(10Gb FCoE & 1GbE) Copper&RJ45		Ethernet Apapter
+U78CA.001.CSS059G-P1-C8-C1: Empty slot
+U78CA.001.CSS059G-P1-C3-C1: Empty slot
+U78CA.001.CSS059G-P1-C4-C1: Quad 8 Gigabit Fibre Channel LP Adapter			Fibre Channel Apapter
+U78CA.001.CSS059G-P1-C5-C1: Quad 8 Gigabit Fibre Channel LP Adapter			Fibre Channel Apapter
+U78CA.001.CSS059G-P1-C6-C1: Empty slot
+
+7) Our selected PCIe card is "PCIe2 4-port(10Gb FCoE & 1GbE) Copper&RJ45" at position "U78CA.001.CSS059G-P1-C1-C1".
+
+8) The feature codes for this device are EN0K (Power8) and EN0L (Power7). More information about these codes can be found here: https://www.ibm.com/support/knowledgecenter/POWER8/p8hcd/fcen0k.htm and http://www.ibm.com/support/knowledgecenter/POWER7/p7hcd/fcen0l.htm
+
+9) Yes, the system supports SR-IOV. Single Root I/O Virtualization is a hardware feature of PCIe devices to offer two sets of functions to ease virtualization of PCIe devices (especially without using an additonal virtualization technology). These are physical functions available to the hypervisor and a subset of these as virtual functions available to virtual systems. In general, physical functions include function calls to manage the hardware capabilites and change settings while the virtual functions don't support major state changes. The main purpose of virtual functions is to allow I/O access from a virtual system to the PCIe device. In order to use SR-IOV, a supported hardware, BIOS and hypervisor is required. A common example of SR-IOV are Network Interface Cards (NICs), which offer additional (theoretically up to 256) virtual "ports" available to virtual systems. 
+
+10) Yes, our system is capable of Active Memory Mirroring and is configured to mirror the "system firmware". With this feature enabled, the memory allocated by the hypervisor PowerVM is mirrored in order to have a redundant set of the information on different DIMMs. In case of a memory hardware failure, the hypervisor is able to continue working with the mirrored information. These include Hardware page tables, used to translate virtual memory addresses to the physical ones, Translation control entities used for I/O access of LPARs and stateful information (such as the configuration) for the LPARs. It is important to notice that Active Memory Mirroring only mirrors the hypervisor memory, not memory assigned to virtual systems!
