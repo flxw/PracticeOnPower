@@ -1,0 +1,3 @@
+Felix Wolff2 (power.course20): centos-course-f208e167-00000020(32)
+Sebastian Serth (power.course37): centos-course-ea5971c6-00000030(49)
+...-30 boots as power.course36, other partitions won't boot.
