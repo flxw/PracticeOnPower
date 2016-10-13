@@ -1,6 +1,6 @@
 TARGET = colorfilter
 
-CFLAGS = -Wall -Wextra -std=c11 -maltivec -mabi=altivec
+CFLAGS = -Wall -Wextra -std=c11 -maltivec -mabi=altivec -mcpu=native
 
 HDR = bmp.h
 SRC = bmp.c main.c

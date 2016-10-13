@@ -28,13 +28,13 @@ int is_apt_for_exercise(bmp_t *bmp)
 void taskA(uint8_t *in, uint8_t *out, int num_pixels)
 {
 	pixel_t value;
-	vector int vnegative = {255,255,255,0}; // 0 for 32-bit alignment
-	vector int vnegativepixel=vnegative;
+	vector unsigned int vnegative = {255,255,255,0}; // 0 for 32-bit alignment
+	vector unsigned int vnegativepixel=vnegative;
 	int p;
 
 	for (p = 0; p < num_pixels; p++) {
 		value = ((pixel_t *)in)[p];
-		vector int vpixel = {bswap_8(value.r), bswap_8(value.g), bswap_8(value.b), 0};
+		vector unsigned int vpixel = {bswap_8(value.r), bswap_8(value.g), bswap_8(value.b), 0};
 		vnegativepixel = vec_sub(vnegative, vpixel);
 
 		value.r = bswap_8(vnegativepixel[0]);
