@@ -18,8 +18,6 @@
 
 #if __BIG_ENDIAN__ == 1
 
-#define bswap_8(value) \
-((((value) & 0xf) << 4) | ((value) >> 4))
 #define bswap_16(value) \
 ((((value) & 0xff) << 8) | ((value) >> 8))
 #define bswap_32(value) \
@@ -32,7 +30,6 @@
 
 #elif __BIG_ENDIAN__ != 1
 
-#define bswap_8(value) value
 #define bswap_16(value) value
 #define bswap_32(value) value
 #define bswap_64(value) value

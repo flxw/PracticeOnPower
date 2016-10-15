@@ -34,12 +34,12 @@ void taskA(uint8_t *in, uint8_t *out, int num_pixels)
 
 	for (p = 0; p < num_pixels; p++) {
 		value = ((pixel_t *)in)[p];
-		vector unsigned int vpixel = {bswap_8(value.r), bswap_8(value.g), bswap_8(value.b), 0};
+		vector unsigned int vpixel = {value.r, value.g, value.b, 0};
 		vnegativepixel = vec_sub(vnegative, vpixel);
 
-		value.r = bswap_8(vnegativepixel[0]);
-		value.g = bswap_8(vnegativepixel[1]);
-		value.b = bswap_8(vnegativepixel[2]);
+		value.r = vnegativepixel[0];
+		value.g = vnegativepixel[1];
+		value.b = vnegativepixel[2];
 
 		((pixel_t *)out)[p] = value;
 	}
@@ -92,7 +92,7 @@ void taskC(uint8_t *in, uint8_t *out, int num_pixels)
 		vector unsigned int vavgpixel = {avgpixvalue, avgpixvalue, avgpixvalue, 0};
 
 		vector unsigned int vred = { 255, vpixel[0], vpixel[0], 0 };
-		vector bool vdominantred = vec_cmpgt(vred, vpixel);
+		vector bool short vdominantred = (vector bool short) vec_cmpgt(vred, vpixel);
 		vector unsigned int finalpixel = (vdominantred[0] && vdominantred[1] && vdominantred[2]) ? vpixel : vavgpixel;
 
 		value.r = (finalpixel[0]);
