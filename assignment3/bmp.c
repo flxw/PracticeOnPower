@@ -50,7 +50,8 @@ void bmp_copyHeader(bmp_t *bmp, bmp_t *other)
 
 void bmp_write(bmp_t *bmp, const char *filename)
 {
-	int x, y;
+	unsigned int x;
+	int y;
 	pixel_t output;
 	FILE *f = fopen(filename, "w");
 
