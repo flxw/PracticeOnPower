@@ -1,6 +1,11 @@
+# Makefile compatible with GNU Make only.
+
 TARGET = colorfilter
 
-CFLAGS = -Wall -Wextra -std=c11 -maltivec -mabi=altivec -mcpu=native
+COMPILER = $(shell basename $(CC))
+CFLAGS_gcc = -Wall -Wextra -maltivec -mabi=altivec -mcpu=native -std=c11
+CFLAGS_xlc = -qaltivec -qarch=auto
+CFLAGS = $(CFLAGS_$(COMPILER))
 
 HDR = bmp.h
 SRC = bmp.c main.c
@@ -12,7 +17,9 @@ ARCHIVE = $(TARGET).tar.gz
 
 all: $(TARGET)
 
+ifeq ($(COMPILER),gcc)
 -include $(DEP)
+endif
 
 %.d: %.c
 	$(CC) -MM $(CFLAGS) $< > $@
