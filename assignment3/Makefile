@@ -4,6 +4,7 @@ TARGET = colorfilter
 
 COMPILER = $(shell basename $(CC))
 CFLAGS_gcc = -Wall -Wextra -maltivec -mabi=altivec -mcpu=native -std=c11
+CFLAGS_cc = $(CFLAGS_gcc)
 CFLAGS_xlc = -qaltivec -qarch=auto
 CFLAGS = $(CFLAGS_$(COMPILER))
 
