@@ -1,3 +1,4 @@
+#include "byteswap.h"
 #include "bmp.h"
 
 #include <stdio.h>
@@ -30,9 +31,9 @@ void taskA(uint8_t *in, uint8_t *out, int num_pixels)
 
 	for (p = 0; p < num_pixels; p++) {
 		value = ((pixel_t *)in)[p];
-		value.r = bswap_8(255 - bswap_8(value.r));
-		value.g = bswap_8(255 - bswap_8(value.g));
-		value.b = bswap_8(255 - bswap_8(value.b)); 
+		value.r = 255 - value.r;
+		value.g = 255 - value.g;
+		value.b = 255 - value.b; 
 		((pixel_t *)out)[p] = value;
 	}
 }
@@ -68,8 +69,11 @@ int main(int argc, char *argv[])
 		task = argv[1][0];
 	}
 
-	bmp_read(&bmp_in, filename);
-	bmp_copyHeader(&bmp_out, &bmp_in);
+	FILE *f = bmp_openFile(filename, "r");
+	bmp_readHeader(&bmp_in, f);
+	bmp_copyHeaderAndPrepareForRead(&bmp_out, &bmp_in);
+	bmp_readData(&bmp_in, f);
+	bmp_closeFile(f);
 
 	if (!is_apt_for_exercise(&bmp_in)) {
 		fprintf(stderr, "For the sake simplicity please provide a ARGB8888 image with a pixel count divisible by four.\n");
@@ -78,7 +82,7 @@ int main(int argc, char *argv[])
 
 	switch (task) {
 		case 'a':
-			taskA(bmp_in.data, bmp_out.data, bswap_32(bmp_in.width) * bswap_32(bmp_in.height));
+			taskA(bmp_in.data, bmp_out.data, bmp_in.width * bmp_in.height);
 			break;
 		case 'b':
 			taskB(bmp_in.data, bmp_out.data, bmp_in.width * bmp_in.height);
