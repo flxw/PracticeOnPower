@@ -8,7 +8,6 @@
 
 int is_apt_for_exercise(bmp_t *bmp)
 {
-
 	int is_argb =
 		(bmp->channels == 4) &&
 		(bswap_32(bmp->compression) == BMP_BI_BITFIELDS) &&
@@ -18,7 +17,6 @@ int is_apt_for_exercise(bmp_t *bmp)
 		(bswap_32(bmp->alphaMask)   == BMP_ARGB8888_A_MASK);
 	int is_simdable =
 		((bmp->width * bmp->height) % 4 == 0);
-
 	return is_argb && is_simdable;
 }
 

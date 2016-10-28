@@ -62,12 +62,6 @@ void bmp_write(bmp_t *bmp, const char *filename)
 	bmp->height = sbswap_32(bmp->height);
 	bmp->width = sbswap_32(bmp->width);
 
-	printf("height: %i \n", bmp->height);
-	printf("width: %i \n", bmp->width);
-	printf("yDirection: %i \n", bmp->yDirection);
-	printf("yOffset: %i \n", bmp->yOffset);
-
-
 	/* Store bitmap bottom-up (thus positive height) */
 	for (y = bmp->height - 1; y >= 0; y--) {
 		for (x = 0; x < bmp->width; x++) {
