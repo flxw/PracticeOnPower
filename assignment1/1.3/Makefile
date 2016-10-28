@@ -1,6 +1,12 @@
+# Makefile compatible with GNU Make only.
+
 TARGET = colorfilter
 
-CFLAGS = -Wall -Wextra -std=c11
+COMPILER = $(shell basename $(CC))
+CFLAGS_gcc = -Wall -Wextra -mcpu=native -std=c11
+CFLAGS_cc = $(CFLAGS_gcc)
+CFLAGS_xlc =
+CFLAGS = $(CFLAGS_$(COMPILER))
 
 HDR = bmp.h
 SRC = bmp.c main.c
@@ -12,14 +18,18 @@ ARCHIVE = $(TARGET).tar.gz
 
 all: $(TARGET)
 
+ifeq ($(COMPILER),gcc)
 -include $(DEP)
+else ifeq ($(COMPILER),cc)
+-include $(DEP)
+endif
 
 %.d: %.c
 	$(CC) -MM $(CFLAGS) $< > $@
 
 $(TARGET): $(OBJ)
 	$(CC) $(LDFLAGS) $(OBJ) -o $@
-	
+
 run: $(TARGET)
 	./$(TARGET) apples.bmp
 
