@@ -1,3 +1,4 @@
+#include "byteswap.h"
 #include "bmp.h"
 
 #include <stdio.h>
@@ -16,7 +17,8 @@ int is_apt_for_exercise(bmp_t *bmp)
 		(bswap_32(bmp->blueMask)    == BMP_ARGB8888_B_MASK) &&
 		(bswap_32(bmp->alphaMask)   == BMP_ARGB8888_A_MASK);
 	int is_simdable =
-		((bswap_32(bmp->width) * bswap_32(bmp->height)) % 4 == 0);
+		((bmp->width * bmp->height) % 4 == 0);
+
 	return is_argb && is_simdable;
 }
 
@@ -125,8 +127,11 @@ int main(int argc, char *argv[])
 		task = argv[1][0];
 	}
 
-	bmp_read(&bmp_in, filename);
-	bmp_copyHeader(&bmp_out, &bmp_in);
+	FILE *f = bmp_openFile(filename, "r");
+	bmp_readHeader(&bmp_in, f);
+	bmp_copyHeaderAndPrepareForRead(&bmp_out, &bmp_in);
+	bmp_readData(&bmp_in, f);
+	bmp_closeFile(f);
 
 	if (!is_apt_for_exercise(&bmp_in)) {
 		fprintf(stderr, "For the sake simplicity please provide a ARGB8888 image with a pixel count divisible by four.\n");
@@ -135,13 +140,13 @@ int main(int argc, char *argv[])
 
 	switch (task) {
 		case 'a':
-			taskA(bmp_in.data, bmp_out.data, bswap_32(bmp_in.width) * bswap_32(bmp_in.height));
+			taskA(bmp_in.data, bmp_out.data, bmp_in.width * bmp_in.height);
 			break;
 		case 'b':
-			taskB(bmp_in.data, bmp_out.data, bswap_32(bmp_in.width) * bswap_32(bmp_in.height));
+			taskB(bmp_in.data, bmp_out.data, bmp_in.width * bmp_in.height);
 			break;
 		case 'c':
-			taskC(bmp_in.data, bmp_out.data, bswap_32(bmp_in.width) * bswap_32(bmp_in.height));
+			taskC(bmp_in.data, bmp_out.data, bmp_in.width * bmp_in.height);
 			break;
 		default:
 			fprintf(stderr, "Invalid task.\n");

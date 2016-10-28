@@ -2,6 +2,7 @@
 #define _BMP_H
 
 #include <stdint.h>
+#include <stdio.h>
 
 #define BMP_FILE_HEADER_SIZE	14
 #define BMP_DIB5_HEADER_SIZE	124
@@ -13,31 +14,7 @@
 #define BMP_ARGB8888_G_MASK 0x0000FF00
 #define BMP_ARGB8888_B_MASK 0x000000FF
 
-
 /*----------------------------------------------------------------------------*/
-
-#if __BIG_ENDIAN__ == 1
-
-#define bswap_16(value) \
-((((value) & 0xff) << 8) | ((value) >> 8))
-#define bswap_32(value) \
-(((uint32_t)bswap_16((uint16_t)((value) & 0xffff)) << 16) | \
-(uint32_t)bswap_16((uint16_t)((value) >> 16)))
-#define bswap_64(value) \
-(((uint64_t)bswap_32((uint32_t)((value) & 0xffffffff)) \
-<< 32) | \
-(uint64_t)bswap_32((uint32_t)((value) >> 32)))
-
-#elif __BIG_ENDIAN__ != 1
-
-#define bswap_16(value) value
-#define bswap_32(value) value
-#define bswap_64(value) value
-
-#endif
-
-/*----------------------------------------------------------------------------*/
-
 
 typedef struct _pixel {
 	uint8_t b;
@@ -109,10 +86,12 @@ typedef struct _bmp {
 
 /*----------------------------------------------------------------------------*/
 
-extern void bmp_read(bmp_t *bmp, const char *filename);
-extern void bmp_assign(bmp_t *bmp);
+extern void bmp_readHeader(bmp_t *bmp, FILE *f);
+extern void bmp_readData(bmp_t *bmp, FILE *f);
 extern void bmp_write(bmp_t *bmp, const char *filename);
-extern void bmp_copyHeader(bmp_t *bmp, bmp_t *other);
+extern void bmp_copyHeaderAndPrepareForRead(bmp_t *bmp, bmp_t *other);
+extern FILE * bmp_openFile(const char *filename, const char *RWmode);
+extern void bmp_closeFile(FILE *f);
 extern void bmp_free(bmp_t *bmp);
 
 #endif /* _BMP_H */
