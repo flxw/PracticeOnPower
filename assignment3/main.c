@@ -27,86 +27,78 @@ int is_apt_for_exercise(bmp_t *bmp)
 
 void taskA(uint8_t *in, uint8_t *out, int num_pixels)
 {
-	pixel_t value;
-	vector unsigned int vnegative = {255,255,255,0}; // 0 for 32-bit alignment
-	vector unsigned int vnegativepixel=vnegative;
-	int p;
+	vector unsigned char vnegative = { 255, 255, 255, 254,
+									    255, 255, 255, 254,
+									    255, 255, 255, 254,
+									    255, 255, 255, 254 };
 
-	for (p = 0; p < num_pixels; p++) {
-		value = ((pixel_t *)in)[p];
-		vector unsigned int vpixel = {value.r, value.g, value.b, 0};
-		vnegativepixel = vec_sub(vnegative, vpixel);
+	vector unsigned char *vinput = (vector unsigned char *)in;
+	vector unsigned char *voutput = (vector unsigned char *)out;
 
-		value.r = vnegativepixel[0];
-		value.g = vnegativepixel[1];
-		value.b = vnegativepixel[2];
-
-		((pixel_t *)out)[p] = value;
+	for (int p = 0; p < num_pixels / 4; p++) {
+		voutput[p] = vec_sub(vnegative, vinput[p]);
 	}
 }
 
 void taskB(uint8_t *in, uint8_t *out, int num_pixels)
 {
 	pixel_t value;
-	int p;
 
+	for (int p = 0; p < num_pixels; p++) {
+		value = ((pixel_t *) in)[p];
 
-	/* R1 + G1 + B1
-	 * R2 + G2 + B2
-	 * R3 + G3 + B3
-	 * R4 + G4 + B4 */
+		vector unsigned int vpixel = { value.r, value.g, value.b, 0 };
+		vector float vfpixel = vec_ctf(vpixel, 0);
+		vector float vfconverter = { 0.29891f, 0.58661f, 0.11448f, 0 };
+		vector float vfgrayscale_part = vec_mul(vfpixel, vfconverter);
 
-	for (p = 0; p < num_pixels; p+=1) {
-		value = ((pixel_t *)in)[p];
-
-		// suddenly endianness is not important anymore??!
-		vector unsigned int vpixel = {(value.r), (value.g), (value.b), 0};
-		vector float vfconverter = {0.29891f, 0.58661f, 0.11448f, 0};
-		vector float vfpixel     = vec_ctf(vpixel, 0);
-
-		vector unsigned int vresult = vec_ctu(vec_mul(vfpixel, vfconverter), 0);
-
-		value.r = value.g = value.b = (vresult[0]) + (vresult[1]) + (vresult[2]);
-
-/*		int avg = (value.r + value.g + value.b)/3;
-		value.r = value.g = value.b = avg;*/
-
-		((pixel_t *)out)[p] = value;
+		float fresult = vfgrayscale_part[0] + vfgrayscale_part[1] + vfgrayscale_part[2];
+		value.r = value.g = value.b = (unsigned char) fresult;
+		((pixel_t *) out)[p] = value;
 	}
 }
 
 void taskC(uint8_t *in, uint8_t *out, int num_pixels)
 {
-	pixel_t value;
-	int p;
+	vector unsigned char *vinput = (vector unsigned char *)in;
+	vector unsigned char *voutput = (vector unsigned char *)out;
 
-	for (p = 0; p < num_pixels; p+=1) {
-		value = ((pixel_t *)in)[p];
+	unsigned char *grayscale = malloc(num_pixels * 4);
+	vector unsigned char *vgrayscale = (vector unsigned char *)grayscale;
 
-		vector unsigned int vpixel = {(value.r), (value.g), (value.b), 0};
-		vector float vfconverter = {0.29891f, 0.58661f, 0.11448f, 0};
-		vector float vfpixel     = vec_ctf(vpixel, 0);
+	taskB(in, grayscale, num_pixels);
+	
+	vector unsigned char vperm_pattern_red  = { 0x02, 0x02, 0x10, 0x03,
+										        0x06, 0x06, 0x10, 0x07,
+										        0x0A, 0x0A, 0x10, 0x0B,
+										        0x0E, 0x0E, 0x10, 0x0F };
+	vector unsigned char vone_char 			= { 0xFF, 0xFF, 0xFF, 0xFF,
+												0xFF, 0xFF, 0xFF, 0xFF,
+												0xFF, 0xFF, 0xFF, 0xFF,
+												0xFF, 0xFF, 0xFF, 0xFF };
+	vector unsigned char vred;
+	vector bool char vdominantred;
+	vector bool char vandresult;
 
-		vector unsigned int vresult = vec_ctu(vec_mul(vfpixel, vfconverter), 0);
-		unsigned int avgpixvalue = (vresult[0]) + (vresult[1]) + (vresult[2]);
-		vector unsigned int vavgpixel = {avgpixvalue, avgpixvalue, avgpixvalue, 0};
+	for (int p = 0; p < num_pixels / 4; p++) {
+		vred = vec_perm(vinput[p], vone_char, vperm_pattern_red);
+		vdominantred = vec_cmpgt(vred, vinput[p]);
 
-		vector unsigned int vred = { 255, vpixel[0], vpixel[0], 0 };
-		vector bool short vdominantred = (vector bool short) vec_cmpgt(vred, vpixel);
-		vector unsigned int finalpixel = (vdominantred[0] && vdominantred[1] && vdominantred[2]) ? vpixel : vavgpixel;
+		for (int r = 0; r < 4; r++) {
+			if (vdominantred[r * 4] && vdominantred[r * 4 + 1] && vdominantred[r * 4 + 2]) {
+				vandresult[r * 4] = vandresult[r * 4 + 1] = vandresult[r * 4 + 2] = vandresult[r * 4 + 3] = 0xFF;
+			} else {
+				vandresult[r * 4] = vandresult[r * 4 + 1] = vandresult[r * 4 + 2] = vandresult[r * 4 + 3] = 0x00;
+			}
+		}
 
-		value.r = (finalpixel[0]);
-		value.g = (finalpixel[1]);
-		value.b = (finalpixel[2]);
-
-		((pixel_t *)out)[p] = value;
-
-		/* Alternativ (und auch mehr SIMD)
-		 * vier Pixel auf einmal nehmen, einen Vektor pro Farbkanal und in Graustufe umwandeln.
-		 * Mit dem Rot-Vektor auf Dominanz prüfen, daraus einen Bool-Vektor zur Wahl des Source-Vektors nehmen
-		 */
+		voutput[p] = vec_sel(vgrayscale[p], vinput[p], vandresult);
 	}
+
+	free(vgrayscale);
+	vgrayscale = NULL;
 }
+
 
 /*----------------------------------------------------------------------------*/
 

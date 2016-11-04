@@ -20,6 +20,8 @@ all: $(TARGET)
 
 ifeq ($(COMPILER),gcc)
 -include $(DEP)
+else ifeq ($(COMPILER),cc)
+-include $(DEP)
 endif
 
 %.d: %.c

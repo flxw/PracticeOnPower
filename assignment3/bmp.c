@@ -97,4 +97,3 @@ void bmp_free(bmp_t *bmp)
 	free(bmp->data);
 	bmp->data = NULL;
 }
-

@@ -1,0 +1,15 @@
+ Performance counter stats for './colorfilter c apples.bmp' (100 runs):
+
+         24.415332      task-clock (msec)         #    0.531 CPUs utilized            ( +-  0.32% )
+                22      context-switches          #    0.920 K/sec                    ( +-  0.49% )
+                 0      cpu-migrations            #    0.002 K/sec                    ( +- 49.24% )
+                83      page-faults               #    0.003 M/sec                    ( +-  0.04% )
+        95,280,804      cycles                    #    3.902 GHz                      ( +-  0.41% )  (66.39%)
+           780,927      stalled-cycles-frontend   #    0.82% frontend cycles idle     ( +-  1.88% )  (51.38%)
+        80,771,699      stalled-cycles-backend    #   84.77% backend  cycles idle     ( +-  0.44% )  (52.50%)
+        47,773,980      instructions              #    0.50  insns per cycle        
+                                                  #    1.69  stalled cycles per insn  ( +-  1.52% )  (77.57%)
+         5,785,670      branches                  #  236.969 M/sec                    ( +-  3.68% )  (50.51%)
+           322,744      branch-misses             #    5.58% of all branches          ( +-  2.09% )  (53.40%)
+
+       0.045938732 seconds time elapsed                                          ( +-  1.60% )
